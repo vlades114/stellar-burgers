@@ -1,14 +1,7 @@
-import { FC, SyntheticEvent, useEffect, useState } from 'react';
+import { FC, FormEvent, useEffect, useState } from 'react';
 import { LoginUI } from '@ui-pages';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from '@store';
-import {
-  clearError,
-  getIsAuthenticated,
-  getUserError,
-  getUserLoading,
-  login
-} from '@slices';
+import { clearError, getUserError, getUserLoading, login } from '@slices';
 import { Preloader } from '@ui';
 
 export const Login: FC = () => {
@@ -21,7 +14,7 @@ export const Login: FC = () => {
 
   const dispatch = useDispatch();
 
-  const handleSubmit = async (e: SyntheticEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     dispatch(clearError());
     try {
