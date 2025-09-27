@@ -8,7 +8,8 @@ import {
   getBurgerConstructor,
   getOrderRequest,
   getOrderDetailsData,
-  getIsAuthenticated
+  getIsAuthenticated,
+  resetConstructor
 } from '@slices';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,7 +21,7 @@ export const BurgerConstructor: FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const onOrderClick = () => {
+  const onOrderClick = async () => {
     if (!constructorItems.bun || orderRequest || !isAuthenticated) {
       if (!isAuthenticated) {
         return navigate('/login');
@@ -34,7 +35,11 @@ export const BurgerConstructor: FC = () => {
       constructorItems.bun._id
     ];
 
-    dispatch(createOrder(burgerItem));
+    const resultAction = await dispatch(createOrder(burgerItem));
+
+    if (createOrder.fulfilled.match(resultAction)) {
+      dispatch(resetConstructor());
+    }
   };
 
   const closeOrderModal = () => {

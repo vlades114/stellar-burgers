@@ -1,4 +1,5 @@
 export {
+  initialState,
   fetchUser,
   login,
   logout,

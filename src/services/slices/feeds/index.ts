@@ -1,4 +1,5 @@
 export {
+  initialState,
   fetchFeeds,
   getFeeds,
   getFeedsOrders,

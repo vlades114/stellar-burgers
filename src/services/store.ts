@@ -7,13 +7,13 @@ import {
 } from 'react-redux';
 
 import { burgerConstructorSlice } from './slices/burgerConstructor';
-import { feedsSlice } from './slices/feeds/';
-import { ingredientsSlice } from './slices/ingredients/';
-import { ordersListSlice } from './slices/orders/';
-import { orderDetailsSlice } from './slices/orders/';
-import { userSlice } from './slices/user/';
+import { feedsSlice } from './slices/feeds';
+import { ingredientsSlice } from './slices/ingredients';
+import { ordersListSlice } from './slices/orders';
+import { orderDetailsSlice } from './slices/orders';
+import { userSlice } from './slices/user';
 
-const rootReducer = combineSlices(
+export const rootReducer = combineSlices(
   burgerConstructorSlice,
   feedsSlice,
   ingredientsSlice,

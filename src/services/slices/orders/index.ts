@@ -1,4 +1,5 @@
 export {
+  initialState as initialStateOrdersDetails,
   fetchOrder,
   createOrder,
   clearOrderModal,
@@ -8,6 +9,7 @@ export {
 } from './orderDetailsSlice';
 
 export {
+  initialState as initialStateOrdersList,
   fetchOrders,
   getOrderListData,
   ordersListSlice

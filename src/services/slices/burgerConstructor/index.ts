@@ -1,4 +1,5 @@
 export {
+  initialState,
   burgerConstructorSlice,
   addBun,
   addIngredient,

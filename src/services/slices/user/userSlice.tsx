@@ -24,7 +24,7 @@ type TUserState = {
   isAuthenticated: boolean;
 };
 
-const initialState: TUserState = {
+export const initialState: TUserState = {
   data: {
     email: '',
     name: ''

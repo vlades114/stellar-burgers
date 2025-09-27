@@ -1,4 +1,5 @@
 export {
+  initialState,
   fetchIngredients,
   getIngredients,
   getIngredientsLoading,
