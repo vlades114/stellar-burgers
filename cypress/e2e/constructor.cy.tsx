@@ -1,4 +1,4 @@
-import * as orderFixture from '../fixtures/order.json';
+import { selectors } from '../support/selectors';
 
 describe('E2E тестирование конструктора бургеров', () => {
   beforeEach(() => {
@@ -6,7 +6,7 @@ describe('E2E тестирование конструктора бургеров
     cy.setCookie('accessToken', 'fakeAccessToken');
     localStorage.setItem('refreshToken', 'fakeRefreshToken');
 
-    // Перехват запроса на получение ингредиентов
+    // Перехват запросов
     cy.intercept('GET', `${Cypress.env('BURGER_API_URL')}/ingredients`, {
       fixture: 'ingredients'
     }).as('getIngredients');
@@ -20,6 +20,7 @@ describe('E2E тестирование конструктора бургеров
     }).as('createOrder');
 
     cy.visit('/');
+    cy.wait(['@getIngredients', '@getUser']);
   });
 
   afterEach(() => {
@@ -30,24 +31,22 @@ describe('E2E тестирование конструктора бургеров
 
   describe('Проверка наличия ингредиентов', () => {
     it('Ингредиенты загружены и доступны для выбора', () => {
-      cy.wait('@getIngredients');
-      cy.get('[data-cy="ingredient-bun"]').should('have.length.at.least', 1);
-      cy.get('[data-cy="ingredient-main"]').should('have.length.at.least', 1);
-      cy.get('[data-cy="ingredient-sauce"]').should('have.length.at.least', 1);
+      cy.get(selectors.ingredientBun).should('have.length.at.least', 1);
+      cy.get(selectors.ingredientMain).should('have.length.at.least', 1);
+      cy.get(selectors.ingredientSauce).should('have.length.at.least', 1);
     });
   });
 
   describe('Проверка конструктора бургеров', () => {
     it('Добавление ингредиентов в конструктор', () => {
       // Проверяем, что конструктор пуст
-      cy.get('[data-cy="burger-connstructor-section"]')
+      cy.get(selectors.burgerConstructorSection)
         .find('.constructor-element__text')
         .should('have.length', 0);
 
       // Добавляем булку
-      cy.get('[data-cy="ingredient-bun"]').first().as('bun');
-      cy.get('@bun').find('button').contains('Добавить').click();
-      cy.get('[data-cy="burger-connstructor-section"]').within(() => {
+      cy.addIngredient('bun');
+      cy.get(selectors.burgerConstructorSection).within(() => {
         cy.get('.constructor-element__text')
           .contains('Краторная булка N-200i (верх)')
           .should('exist');
@@ -55,65 +54,55 @@ describe('E2E тестирование конструктора бургеров
           .contains('Краторная булка N-200i (низ)')
           .should('exist');
       });
-      cy.get('[data-cy="burger-constructor-button"]').should('be.disabled');
+      cy.get(selectors.burgerConstructorButton).should('be.disabled');
 
       // Добавляем начинку
-      cy.get('[data-cy="ingredient-main"]').first().as('main');
-      cy.get('@main').find('button').contains('Добавить').click();
-      cy.get('[data-cy="burger-connstructor-section"]').within(() => {
+      cy.addIngredient('main');
+      cy.get(selectors.burgerConstructorSection).within(() => {
         cy.get('.constructor-element__text')
           .contains('Биокотлета из марсианской Магнолии')
           .should('exist');
       });
-      cy.get('[data-cy="burger-constructor-button"]').should('be.enabled');
+      cy.get(selectors.burgerConstructorButton).should('be.enabled');
 
       // Добавляем соус
-      cy.get('[data-cy="ingredient-sauce"]').first().as('sauce');
-      cy.get('@sauce').find('button').contains('Добавить').click();
-      cy.get('[data-cy="burger-connstructor-section"]').within(() => {
+      cy.addIngredient('sauce');
+      cy.get(selectors.burgerConstructorSection).within(() => {
         cy.get('.constructor-element__text')
           .contains('Соус с шипами Антарианского плоскоходца')
           .should('exist');
       });
-      cy.get('[data-cy="burger-constructor-button"]').should('be.enabled');
+      cy.get(selectors.burgerConstructorButton).should('be.enabled');
     });
   });
 
   describe('Проверка работы модальных окон', () => {
     describe('Проверка открытия', () => {
       it('Открытие модального окна ингредиента', () => {
-        cy.get('[data-cy="ingredient-bun"]').first().click();
-        cy.get('[data-cy="modal-data"]').should('exist').and('be.visible');
+        cy.openIngredientModal();
       });
 
       it('Модальное окно открыто после перезагрузки страницы', () => {
-        cy.get('[data-cy="ingredient-bun"]').first().click();
+        cy.openIngredientModal();
         cy.reload(true);
-        cy.get('[data-cy="modal-data"]').should('exist').and('be.visible');
+        cy.get(selectors.modalData).should('be.visible');
       });
     });
 
     describe('Проверка закрытия', () => {
       it('По клику на крестик', () => {
-        cy.get('[data-cy="ingredient-bun"]').first().click();
-        cy.get('[data-cy="modal-data"]').should('exist').and('be.visible');
-        cy.get('[data-cy="modal-data"]').find('button').first().click();
-        cy.get('[data-cy="modal-data"]').should('not.exist');
+        cy.openIngredientModal();
+        cy.closeModal('button');
       });
 
       it('По клику на оверлей', () => {
-        cy.get('[data-cy="ingredient-bun"]').first().click();
-        cy.get('[data-cy="modal-data"]').should('exist').and('be.visible');
-        cy.get('[data-cy="modal-data"]').next().should('exist');
-        cy.get('[data-cy="modal-data"]').next().click({ force: true });
-        cy.get('[data-cy="modal-data"]').should('not.exist');
+        cy.openIngredientModal();
+        cy.closeModal('overlay');
       });
 
       it('По клику на Escape', () => {
-        cy.get('[data-cy="ingredient-bun"]').first().click();
-        cy.get('[data-cy="modal-data"]').should('exist').and('be.visible');
-        cy.get('body').type('{esc}');
-        cy.get('[data-cy="modal-data"]').should('not.exist');
+        cy.openIngredientModal();
+        cy.closeModal('escape');
       });
     });
   });
@@ -121,33 +110,15 @@ describe('E2E тестирование конструктора бургеров
   describe('Проверка создания заказа', () => {
     it('Создание заказа', () => {
       // Добавляем ингредиенты
-      cy.get('[data-cy="ingredient-bun"]')
-        .first()
-        .find('button')
-        .contains('Добавить')
-        .click();
-      cy.get('[data-cy="ingredient-main"]')
-        .first()
-        .find('button')
-        .contains('Добавить')
-        .click();
-      cy.get('[data-cy="burger-constructor-button"]').should('be.enabled');
+      cy.addIngredient('bun');
+      cy.addIngredient('main');
+      cy.get(selectors.burgerConstructorButton).should('be.enabled');
 
-      // Кликаем по кнопке "Оформить заказ"
-      cy.get('[data-cy="burger-constructor-button"]').click();
-
-      // Проверяем модальное окно с номером заказа
-      cy.get('[data-cy="modal-data"]').should('be.visible');
-      cy.get('[data-cy="modal-data"] h2')
-        .first()
-        .should('have.text', orderFixture.order.number);
-
-      // Закрываем модальное окно
-      cy.get('[data-cy="modal-data"]').find('button').first().click();
-      cy.get('[data-cy="modal-data"]').should('not.exist');
+      // Создаём заказ
+      cy.createOrder();
 
       // Проверяем, что конструктор пуст
-      cy.get('[data-cy="burger-connstructor-section"]')
+      cy.get(selectors.burgerConstructorSection)
         .find('.constructor-element__text')
         .should('have.length', 0);
     });

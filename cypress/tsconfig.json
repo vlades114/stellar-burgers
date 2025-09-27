@@ -4,5 +4,5 @@
     "noEmit": true,
     "types": ["cypress"]
   },
-  "include": ["../node_modules/cypress", "./**/*.tsx"]
+  "include": ["../node_modules/cypress", "./**/*.tsx", "support/commands.tsx"]
 }
